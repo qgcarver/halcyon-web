@@ -20,6 +20,6 @@ export default {
 		commonjs(), // converts date-fns to ES modules
 		production && terser(), // minify, but only in production
 		ignore('path','fs','child_process','crypto','url','module','wasmoon'),
-		string({include: "**/*.lua"})
+		string({include: ["**/*.lua","**/*.fnl"]})
 	]
 };
