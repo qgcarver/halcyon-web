@@ -22,10 +22,19 @@
 			width: 100vw;
 			height: 100vh;
 		}
+		.output {
+			position: absolute;
+			top: 10%;
+			left: 10%;
+			justify-self: center;
+		}
 	</style>
+	<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+	<script>eruda.init();</script>
 	<script src='bundle.js'></script>
 </head>
 <body>
+	<div class="output" id="out">Testing</div>
 	<canvas id="screen"></canvas>
 </body>
 </html>
