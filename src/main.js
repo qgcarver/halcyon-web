@@ -5,7 +5,7 @@ import init from "./init.fnl";
 
 
 
-var touched = 0;
+var touched = 1;
 
 window.onload = () => {
     const cnv = document.getElementById("screen");
@@ -20,50 +20,60 @@ window.onload = () => {
             "require('fennel').install().dofile('init.fnl')"
         );
         const GUAR = lua.global.get("GUAR");
+        lua.global.set("alert", window.alert);
+        lua.global.set("out", document.getElementById("out"));
         const glsl = SwissGL(cnv);
 
-        // TODO: handle touch events:
-        //   should be placed into evts buf
         let evts = [];
-        cnv.ontouchstart = (e) => {
-            const touch = e.touches[0]
-            evts.push(
-                ['touchstarted', touch.clientX/cnv.height, touch.clientY/cnv.height]
-            )
-            // console.log("chuck")
-            // if (1<touched) {
-            //     window.location.reload();
-            // }
-            // touched = touched+1;
-            // document.documentElement.requestFullscreen();
+        const dpr = self.devicePixelRatio;
+        const getx = touch => 2*(touch.clientX*dpr-(cnv.width/2))/cnv.width;
+        const gety = touch => 2*(touch.clientY*dpr-(cnv.height/2))/cnv.height;
+        const id =   touch => (touch.identifier);
+        const entry = type => touch => evts.push([type, id(touch), getx(touch), gety(touch)]);
+        const changed = name => e => [...e.changedTouches].forEach(entry(name));
+        window.ontouchcancel = changed("touchcancel");
+        window.ontouchend    = changed("touchended");
+        window.ontouchmove   = changed("touchmoved");
+        // window.ontouchstart  = changed("touchstarted");
+        window.ontouchstart = (e) => {
+            // console.log("chuck");
+            changed("touchstarted")(e);
+            if (2==touched) {
+                document.documentElement.requestFullscreen();
+                // window.location.reload();
+            }
+            touched = touched+1;
+            // document.getElementById("out").innerHTML = touched+"";
         };
+        
+        const once = lua.global.get("once");
+        document.getElementById("out").innerText = once();
 
         glsl.loop(({time})=>{
             glsl.adjustCanvas();
-            const rat = cnv.width / cnv.height
+            const rat = cnv.width > cnv.height ?
+                cnv.width/cnv.height:
+                cnv.height/cnv.width;
             const cmds = [];
-            evts.push(["resize-aspect",rat])
+            evts.push(["resizeaspect",rat,cnv.width>cnv.height])
             GUAR(cmds,evts);
             evts = []
             const data = new Float32Array(cmds);
             const dat = glsl({},{size:[1,1],format:'rgba32f',data, tag:"dat"});
-            glsl({time, dat, Aspect:'cover',FP:`
-                vec2 pos = vec2(XY);
-                FOut = vec4(0);
-                FOut = vec4(sin(length(XY)*vec3(30,30.5,31)
-                -(time*6.)+atan(XY.x,XY.y)*3.),1);
-                FOut = vec4(fract(8.*length(XY)));
+            glsl({time, rat, dat, Aspect:'cover',FP:`
+                vec2 pos = vec2(XY)*rat;
                 
                 #define idx(i) dat(ivec2(i,0))
-                FOut += vec4(idx(0).x,idx(0).y,idx(0).z,1);
-                vec4 thing = FOut;
-                FOut = vec4(abs(XY.x-XY.y));
                 float cmd = idx(0).x;
                 if(cmd==1.) {
-                    vec2 foo = idx(0).yz + XY;
-                    FOut = vec4(abs(foo.y-foo.x));
+                    vec2 foo = idx(0).yz + pos;
+                    float d = length(foo);
+                    d = sin(d*6. + time)/6.;
+                    d = abs(d);
+                    d = step(.1, d);
+                    FOut = vec4(d, 0, 0.5, 1.);
                 } else {
-                    FOut = thing;
+                    FOut = vec4(0.8);
                 };
                 `});
         });
