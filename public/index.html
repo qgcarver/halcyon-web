@@ -10,7 +10,7 @@
 			margin: 0px;
 			padding: 0px;
 			overflow: hidden;
-			/* box-sizing: border-box; */
+			box-sizing: border-box;
 			background-color: #333;
 		}
 		body {
@@ -18,14 +18,21 @@
 			color: #ffffff;
 			font-weight: 300;
 		}
-		iframe {
+		.flex-cont {
+			display: flex;
+		}
+		textarea {
+			color: #ffffff;
+			height: 90vh;
 			width: 80vw;
-			height: 100vh;
+		}
+		iframe {
+			height: 90vh;
+			width: 100vw;
 		}
 		.output {
 			position: absolute;
 			top: 20%;
-			left: 10%;
 			justify-self: center;
 		}
 	</style>
@@ -34,6 +41,11 @@
 	<script src='bundle.js'></script>
 </head>
 <body>
-	<div>wrapper</div>
+	<div id="container" class="flex-cont">
+		<div>
+			<h1>code here</h1>
+			<textarea>wrapper</textarea>
+		</div>
+	</div>
 </body>
 </html>

@@ -8,6 +8,7 @@ import init from "./init.fnl";
 var touched = 1;
 
 window.onload = () => {
+    const container = document.getElementById("container");
     const iframe = document.createElement("iframe");
     iframe.srcdoc = `
     <html>
@@ -43,7 +44,7 @@ window.onload = () => {
         </body>
     </html>
     `;
-    document.body.append(iframe);
+    container.appendChild(iframe);
     
 
     iframe.contentWindow.onload = async () => {
