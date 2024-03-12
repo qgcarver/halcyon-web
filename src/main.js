@@ -8,13 +8,54 @@ import init from "./init.fnl";
 var touched = 1;
 
 window.onload = () => {
-    const cnv = document.getElementById("screen");
-    if (!cnv) { console.log("couldn't get canvas"); return; }
-    (async () => {
+    const iframe = document.createElement("iframe");
+    iframe.srcdoc = `
+    <html>
+        <head>
+            <style>
+                * {
+                    margin: 0px;
+                    padding: 0px;
+                    overflow: hidden;
+                    /* box-sizing: border-box; */
+                    background-color: #333;
+                }
+                body {
+                    font-family: 'Helvetica Neue', Arial, sans-serif;
+                    color: #ffffff;
+                    font-weight: 300;
+                }
+                canvas {
+                    width: 100vw;
+                    height: 100vh;
+                }
+                .output {
+                    position: absolute;
+                    top: 20%;
+                    left: 10%;
+                    justify-self: center;
+                }
+            </style>
+        </head>
+        <body>
+	        <div class="output" id="out">Testing</div>
+            <canvas id="screen"></canvas>
+        </body>
+    </html>
+    `;
+    document.body.append(iframe);
+    
+
+    iframe.contentWindow.onload = async () => {
+        const document = iframe.contentDocument;
+        const window = iframe.contentWindow;
+        const cnv = document.getElementById("screen");
+        if (!cnv) { console.log("couldn't get canvas"); return; }
+        
         const factory = new LuaFactory();
+        if (!factory) { console.log("can't create LuaFactory"); return; }
         await factory.mountFile("fennel.lua", fnl);
         await factory.mountFile("init.fnl", init);
-        if (!factory) { console.log("can't create LuaFactory"); return; }
         const lua = await factory.createEngine();
         await lua.doString(
             "require('fennel').install().dofile('init.fnl')"
@@ -23,6 +64,7 @@ window.onload = () => {
         lua.global.set("alert", window.alert);
         lua.global.set("out", document.getElementById("out"));
         const glsl = SwissGL(cnv);
+        console.log(glsl);
 
         let evts = [];
         const dpr = self.devicePixelRatio;
@@ -77,5 +119,6 @@ window.onload = () => {
                 };
                 `});
         });
-    })();
+    };
+
 };
