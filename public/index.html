@@ -9,31 +9,42 @@
 		* {
 			margin: 0px;
 			padding: 0px;
-			overflow: hidden;
 			box-sizing: border-box;
 			background-color: #333;
+		}
+		html {
+			min-height: 100%;
+			display: flex;
 		}
 		body {
 			font-family: 'Helvetica Neue', Arial, sans-serif;
 			color: #ffffff;
 			font-weight: 300;
-		}
-		.flex-cont {
+			/* height: 100vh; */
+			/* min-height: 100%; */
+			min-width: 100%;
 			display: flex;
 		}
-		textarea {
-			color: #ffffff;
-			height: 90vh;
-			width: 80vw;
-		}
 		iframe {
-			height: 90vh;
-			width: 100vw;
+			flex-grow: 1;
 		}
-		.output {
-			position: absolute;
-			top: 20%;
-			justify-self: center;
+		.editor {
+			justify-content: center;
+			padding: 5px;
+			display: flex;
+			flex-direction: column;
+			width: 35%;
+		}
+		.code {
+			color: #ffffff;
+			background-color: #282828;
+			padding: 4px;
+			flex-grow: 1;
+		}
+		.btn {
+			font-size: x-large;
+			margin: 4px;
+			color:#fff;
 		}
 	</style>
 	<script src="//cdn.jsdelivr.net/npm/eruda"></script>
@@ -41,10 +52,13 @@
 	<script src='bundle.js'></script>
 </head>
 <body>
-	<div id="container" class="flex-cont">
-		<div>
-			<h1>code here</h1>
-			<textarea>wrapper</textarea>
+	<div id="editor" class="editor">
+		<div class="bar">
+			<button onclick="document.documentElement.requestFullscreen();" class="btn">&nbsp;&#x26f6;&nbsp;</button> 
+			<select class="btn" id="fileselect">
+				<option value="main">File System</option>
+			</select>
+			<button id="save" class="btn">save</button>
 		</div>
 	</div>
 </body>

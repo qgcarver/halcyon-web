@@ -8,7 +8,127 @@ import init from "./init.fnl";
 var touched = 1;
 
 window.onload = () => {
-    const container = document.getElementById("container");
+    const dv = ()=>document.createElement("div");
+    const ap = (el,x)=>el.appendChild(x);
+    const editor = document.getElementById("editor");
+    const code = document.createElement("textarea");
+    code.style.display = "none";
+    code.id = "code"
+    code.className = "code"
+    code.innerText = "wrapper"
+    ap(editor,code);
+
+    const fs = dv();
+    fs.className = "code";
+    fs.style.display = "inline"
+    ap(editor,fs);
+    
+    const testobj = {
+        "host": {
+            "fennel": fnl,
+            "foo": "testy",
+            "bar": {
+                "baz": "fan",
+                "quux": "becker"
+            },
+            "foo": {}
+        },
+        "user": {
+
+        }
+    };
+    fs.innerHTML = "";
+    populateFS(fs,{"test": {
+        "hello":{}
+    },"cak":"gull"},[]);
+    fs.innerHTML = "";
+    populateFS(fs,testobj,[]);
+    
+    const file = document.getElementById("fileselect");
+    file.onchange = (e) => {
+        updatePanel(e.target.value);
+    }
+
+    function updatePanel(optvalue) { 
+        if (optvalue=="main") {
+            code.style.display = "none";
+            fs.style.display = "inline";
+        } else {
+            code.style.display = "inline";
+            fs.style.display = "none";
+        };
+        console.log(optvalue);
+        for (const sub of optvalue.split(".")) {
+            console.log(sub);
+        }
+    }
+
+    function openOrCreateTab(path, filename) {
+        const pathtxt = path.reduce((acc,v)=>acc+v+".","")+filename;
+        let exists = false;
+        for (const option of file.options) {
+            if (option.value == pathtxt) {
+                exists = pathtxt
+            }
+        }
+        if (!exists) {
+            const opt = document.createElement("option");
+            opt.value = pathtxt;
+            opt.text = filename;
+            file.add(opt);
+        }
+        for (const option of file.options) {
+            if(option.value == pathtxt) {
+                option.selected = true;
+                updatePanel(option.value);
+            } else {
+                option.selected = false;
+            }
+        }
+    }
+
+    function item(lvl,filename,ty) {
+        const b = dv();
+        b.style.padding = "5px";
+        b.style.fontFamily = "monospace";
+        b.style.fontSize = "large"
+        let htm =
+          "&nbsp;&nbsp;"
+            .repeat(lvl.length)
+            .concat(filename);
+        console.log("ent");
+        console.log(lvl);
+        console.log(filename);
+        if (ty=="dir") {
+            htm = htm.concat("&#8628;");
+        };
+        b.innerHTML = htm; 
+        return b;
+    };
+
+    function populateFS(filesys,obj,lvl) {
+        for (const key in obj) {
+            if (Object.hasOwnProperty.call(obj, key)) {
+                const elm = obj[key];
+                if(typeof(obj[key])=="string") {
+                    console.log("test")
+                    const file = item(lvl,key,"file");
+                    file.onclick = e=>{
+                        openOrCreateTab(lvl,key);
+                    }
+                    ap(filesys,file);
+                } else {
+                    ap(filesys,item(lvl,key,"dir"));
+                    populateFS(
+                        filesys,elm,
+                        lvl.concat(key));
+                }
+            }
+        }
+    }
+
+
+    const container = document.body;
     const iframe = document.createElement("iframe");
     iframe.srcdoc = `
     <html>
