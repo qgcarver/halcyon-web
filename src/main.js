@@ -1,29 +1,17 @@
 import { LuaFactory } from "./wasmoon.js";
 import './swissgl.js'; const SwissGL = _SwissGL;
+import {EditorView, basicSetup} from "codemirror";
+import {oneDark} from "@codemirror/theme-one-dark";
+import {keymap} from "@codemirror/view";
+import {indentWithTab} from "@codemirror/commands"
+import {vim, Vim, getCM, CodeMirror} from "@replit/codemirror-vim"
 import fnl from "./fennel.lua";
 import init from "./init.fnl";
-
-
 
 var touched = 1;
 
 window.onload = () => {
-    const dv = ()=>document.createElement("div");
-    const ap = (el,x)=>el.appendChild(x);
-    const editor = document.getElementById("editor");
-    const code = document.createElement("textarea");
-    code.style.display = "none";
-    code.id = "code"
-    code.className = "code"
-    code.innerText = "wrapper"
-    ap(editor,code);
-
-    const fs = dv();
-    fs.className = "code";
-    fs.style.display = "inline"
-    ap(editor,fs);
-    
-    const testobj = {
+    const defaultfs = {
         "host": {
             "fennel": fnl,
             "foo": "testy",
@@ -33,38 +21,99 @@ window.onload = () => {
             },
             "foo": {}
         },
-        "user": {
-
-        }
+        "user": {}
     };
+    const ls = window.localStorage;
+    if (!ls.getItem("fs")) {
+        ls.setItem("fs",JSON.stringify(defaultfs));
+    }
+    const currentfs = JSON.parse(ls.getItem("fs"));
+
+    const dv = ()=> {
+        const d = document.createElement("div");
+        d.style.backgroundColor = "#404040";
+        return d;
+    };
+    const ap = (el,x)=>el.appendChild(x);
+    const editor = document.getElementById("editor");
+    const cmwrap = document.createElement("div");
+    cmwrap.className = "mirror";
+    ap(editor,cmwrap);
+    const cm = new EditorView({
+        extensions:
+          [vim(),oneDark,basicSetup,keymap.of([indentWithTab])],
+        parent:cmwrap
+    });
+    let vimcm = getCM(cm);
+    Vim.exitInsertMode(vimcm);
+    Vim.handleKey(cm,"<Esc>");
+    Vim.map("`","<Esc>","insert");
+
+
+    globalThis.abc = cm;
+
+    const code = cmwrap;
+    code.style.display = "none";
+
+    const fs = dv();
+    fs.className = "code";
+    fs.style.display = "inline"
+    ap(editor,fs);
+
     fs.innerHTML = "";
     populateFS(fs,{"test": {
         "hello":{}
     },"cak":"gull"},[]);
     fs.innerHTML = "";
-    populateFS(fs,testobj,[]);
-    
+    populateFS(fs,currentfs,[]);
+
     const file = document.getElementById("fileselect");
     file.onchange = (e) => {
         updatePanel(e.target.value);
     }
+    let cm_states = [];
+
+    let currentfile;
+    const save = document.getElementById("save");
+    save.style.display = "none";
+    save.onclick = (e) => {
+        const [name,dir] = indexfs(currentfs,currentfile);
+        dir[name] = cm.state.doc.toString();
+        ls.setItem("fs",JSON.stringify(currentfs));
+    }
+    
+
+    function indexfs(fsys,path) {
+        const subpaths = path.split("/");
+        const name = subpaths.pop();
+        let dir = fsys;
+        for (const sub of subpaths) {
+            dir = dir[sub];
+        }
+        return [name,dir];
+    };
 
     function updatePanel(optvalue) { 
         if (optvalue=="main") {
-            code.style.display = "none";
+            code.style.display = "none"
+            save.style.display = "none";
             fs.style.display = "inline";
         } else {
             code.style.display = "inline";
+            save.style.display = "inline";
             fs.style.display = "none";
+            const [name,dir] = indexfs(currentfs,optvalue); 
+
+            cm.dispatch({changes: {
+                from: 0, to: cm.state.doc.length,
+                insert: dir[name]
+            }});
+            currentfile = optvalue;
         };
-        console.log(optvalue);
-        for (const sub of optvalue.split(".")) {
-            console.log(sub);
-        }
     }
 
     function openOrCreateTab(path, filename) {
-        const pathtxt = path.reduce((acc,v)=>acc+v+".","")+filename;
+        const pathtxt = path.reduce((acc,v)=>acc+v+"/","")+filename;
         let exists = false;
         for (const option of file.options) {
             if (option.value == pathtxt) {
@@ -165,6 +214,7 @@ window.onload = () => {
     </html>
     `;
     container.appendChild(iframe);
+
     
 
     iframe.contentWindow.onload = async () => {

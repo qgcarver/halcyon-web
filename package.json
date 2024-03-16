@@ -15,5 +15,10 @@
     "watch": "rollup -c -w",
     "dev": "npm-run-all --parallel start watch",
     "start": "serve public"
+  },
+  "dependencies": {
+    "@codemirror/theme-one-dark": "^6.1.2",
+    "@replit/codemirror-vim": "^6.2.0",
+    "codemirror": "^6.0.1"
   }
 }
