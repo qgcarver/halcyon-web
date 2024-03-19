@@ -295,10 +295,10 @@ window.onload = () => {
         }
     }
     
-    const down = doc.getElementById("download");
+    const down = document.getElementById("download");
     down.onclick = (e) => {
         const a = document.createElement("a");
-        doc.body.appendChild(a);
+        document.body.appendChild(a);
         a.style = "display: none";
         const blob = new Blob(
             [JSON.stringify(currentfs)],
