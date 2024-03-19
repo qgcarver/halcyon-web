@@ -294,6 +294,22 @@ window.onload = () => {
             }
         }
     }
+    
+    const down = doc.getElementById("download");
+    down.onclick = (e) => {
+        const a = document.createElement("a");
+        doc.body.appendChild(a);
+        a.style = "display: none";
+        const blob = new Blob(
+            [JSON.stringify(currentfs)],
+            {type: "octet/stream"}
+        );
+        const url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = "halcyon_save.txt";
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
 
     const rel = document.getElementById("reload");
     let iframe;
