@@ -131,12 +131,7 @@ window.onload = () => {
             //"fennel.lua": fnl,
             "iframe": defaultiframesrc,
             "iframecode": defaultiframecode,
-            "init.fnl": init,
-            "bar": {
-                "baz": "fan",
-                "quux": "becker"
-            },
-            "foo": {}
+            "init.fnl": init
         },
         "user": {}
     };
