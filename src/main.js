@@ -310,7 +310,33 @@ window.onload = () => {
         a.click();
         window.URL.revokeObjectURL(url);
     }
-
+    const filestore = document.createElement("input");
+    filestore.style.display = "none";
+    filestore.type = "file";
+    filestore.oninput = (e) => {
+        console.log(e.target.files[0])
+        const fr = new FileReader();
+        fr.onload = (e)=>{
+            const obj = JSON.parse(e.target.result);
+            for (const key in obj) {
+                if (Object.hasOwnProperty.call(obj, key)) {
+                    currentfs[key] = obj[key];
+                }
+            }
+            fs.innerHTML = "";
+            populateFS(fs,currentfs,[]);
+        }
+        fr.readAsText(e.target.files[0]);
+    }
+    const upload = document.createElement("button");
+    upload.className = "btn";
+    upload.innerText = "^";
+    upload.onclick = e =>{
+        filestore.click();
+    }
+    const bar = document.getElementsByClassName("bar")[0];
+    bar.appendChild(upload);
+    
     const rel = document.getElementById("reload");
     let iframe;
     let LuaFact = LuaFactory;
