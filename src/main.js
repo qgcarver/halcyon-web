@@ -340,6 +340,7 @@ window.onload = () => {
     const rel = document.getElementById("reload");
     let iframe;
     let LuaFact = LuaFactory;
+    let fennel = fnl;
     rel.onclick = e=>{
         const container = document.body;
         if (iframe) {
