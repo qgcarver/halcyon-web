@@ -54,7 +54,7 @@ async () => {
     const cnv = document.getElementById("screen");
     if (!cnv) { console.log("couldn't get canvas"); return; }
     
-    const factory = new LuaFact();
+    const factory = new LuaFactory();
     if (!factory) { console.log("can't create LuaFactory"); return; }
     await factory.mountFile("fennel.lua", fnl);
     await factory.mountFile("init.fnl", init);
@@ -337,16 +337,16 @@ window.onload = () => {
     const bar = document.getElementsByClassName("bar")[0];
     bar.appendChild(upload);
     
+    const fennel = fnl;
+    const LuaFact = LuaFactory;
     const rel = document.getElementById("reload");
     let iframe;
-    const nop = (a)=>{};
-    nop(fnl);
-    nop(LuaFactory);
     rel.onclick = e=>{
         const container = document.body;
         if (iframe) {
             container.removeChild(iframe);
         }
+        const [fnl,LuaFactory] = [fennel,LuaFact];
         iframe = document.createElement("iframe");
         iframe.srcdoc = currentfs["host"]["iframe"];
         container.appendChild(iframe);

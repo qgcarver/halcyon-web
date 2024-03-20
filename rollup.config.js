@@ -15,6 +15,7 @@ export default {
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
 		sourcemap: true
 	},
+	treeshake: false,
 	plugins: [
 		resolve(), // tells Rollup how to find date-fns in node_modules
 		commonjs(), // converts date-fns to ES modules
