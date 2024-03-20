@@ -339,8 +339,9 @@ window.onload = () => {
     
     const rel = document.getElementById("reload");
     let iframe;
-    let LuaFact = LuaFactory;
-    let fennel = fnl;
+    const nop = (a)=>{};
+    nop(fnl);
+    nop(LuaFactory);
     rel.onclick = e=>{
         const container = document.body;
         if (iframe) {
@@ -350,9 +351,7 @@ window.onload = () => {
         iframe.srcdoc = currentfs["host"]["iframe"];
         container.appendChild(iframe);
         const iframecode = currentfs["host"]["iframecode"]
-        console.log(LuaFact)
         const fun = eval(iframecode);
-        console.log(fun);
         iframe.contentWindow.onload = fun;
     }
     rel.click();
