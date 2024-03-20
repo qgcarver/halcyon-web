@@ -128,7 +128,7 @@ async () => {
 window.onload = () => {
     const defaultfs = {
         "host": {
-            "fennel.lua": fnl,
+            //"fennel.lua": fnl,
             "iframe": defaultiframesrc,
             "iframecode": defaultiframecode,
             "init.fnl": init,
