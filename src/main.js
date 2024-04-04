@@ -379,6 +379,7 @@ window.onload = () => {
         const container = document.body;
         if (iframe) {
             container.removeChild(iframe);
+            iframe.src = "about:blank";
         }
         const [fnl,LuaFactory] = [fennel,LuaFact];
         iframe = document.createElement("iframe");
