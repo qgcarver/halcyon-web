@@ -8,6 +8,10 @@ import { foldService } from '@codemirror/language';
 import {vim, Vim, getCM, CodeMirror} from "@replit/codemirror-vim"
 import fnl from "./fennel.lua";
 import init from "./init.fnl";
+// unfortunately necessary monkeypatch
+// wasmoon uses setImmediate internally for some reason.
+globalThis.setImmediate = globalThis.setTimeout;
+    
 
 
 const foldingOnIndent = foldService.of((state, from, to) => {
