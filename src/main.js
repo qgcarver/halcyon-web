@@ -50,67 +50,264 @@ const foldingOnIndent = foldService.of((state, from, to) => {
     return { from: foldStart, to: foldEnd }
 })
 
-
-
-var touched = 1;
-const _touchuse = touched;
-const defaultiframesrc = `
-<html>
-    <head>
-        <style>
-            * {
-                margin: 0px;
-                padding: 0px;
-                overflow: hidden;
-                /* box-sizing: border-box; */
-                background-color: #333;
-            }
-            body {
-                font-family: 'Helvetica Neue', Arial, sans-serif;
-                color: #ffffff;
-                font-weight: 300;
-            }
-            canvas {
-                width: 100vw;
-                height: 100vh;
-            }
-            .output {
-                position: absolute;
-                top: 20%;
-                left: 10%;
-                justify-self: center;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="output" id="out">Testing</div>
-        <canvas id="screen"></canvas>
-    </body>
-</html>
-`;
-
-const defaultiframecode = `
-async () => {
-    console.log(iframe)
-    const document = iframe.contentDocument;
-    const window = iframe.contentWindow;
-    const cnv = document.getElementById("screen");
+window.onload = () => {
+    const cnv = document.createElement("canvas");
     if (!cnv) { console.log("couldn't get canvas"); return; }
+    cnv.style.width = "100vw";
+    cnv.style.height = "100vh";
+    document.body.appendChild(cnv);
+    const cmwrap = document.createElement("div");
+    cmwrap.className = "mirror";
+    //ap(editor,cmwrap);
+    const cm = new EditorView({
+        extensions:
+          [vim(),oneDark,basicSetup,keymap.of([indentWithTab]),foldingOnIndent],
+        parent:cmwrap
+    });
+    let vimcm = getCM(cm);
+    Vim.exitInsertMode(vimcm);
+    Vim.handleKey(cm,"<Esc>");
+    Vim.map("`","<Esc>","insert");
+    globalThis.abc = cm;
+    const code = cmwrap;
+    //code.style.display = "none";
+    //dir[name] = cm.state.doc.toString();
+
+    ///////////////////////////////////////////
+    /////////////// Fennel Boot ///////////////
+    ///////////////////////////////////////////
+    
+    const boot = `
+      (set _G.fennel (require :fennel))
+        
+      (local doc _G.DOM.document)
+      (local body doc.body)
+      (local window doc.window)
+      (local cr doc.createElement)
+
+      (local prom (EVAL "(f)=>new Promise(f)"))
+
+      (fn set-style [el opt]
+        (for [i 1 (- (length opt) 1) 2]
+          (tset el.style (. opt i) (. opt (+ i 1)))))
+      
+      (local float-style
+        [:position :absolute
+         :flex-direction :column
+         :display :flex
+         :top :350px
+         :left :150px
+         :width :100px
+         :height :100px])
+         
+      (fn make-float [el] (set-style el float-style))
+      (fn make-rounded [el px] 
+        (set el.style.border-radius (or px :10px)))
+
+             
+      (fn color [el clr]
+        (let [st el.style]
+          (set st.background-color clr)))
+         
+      (fn init-console [cs]
+        (set cs.history [])
+        (set cs.container (cr :div))
+        (set cs.hist-el (cr :div))
+        (set cs.ta (cr :textarea))
+        (set cs.str-queue [])
+        
+        (set cs.dimensions
+          [:height :250px :width :450px])
+        
+        (fn cs.add-bar [ct]
+          (local bar (cr :div))
+          (set bar.textContent "Console")
+          (set-style bar 
+            [:background-color :#1a1a1a
+             :font-family :monospace
+             :min-height :25px
+             :flex-shrink 0
+             :padding :2px
+             :text-align     :center
+             :vertical-align :middle
+             :line-height :25px
+             :border :none
+             :border-bottom-width :0px
+             :border-bottom-color :#444
+             :border-bottom-style :solid])
+          (set bar.ontouchstart (fn [e]
+            (let [t (. e.touches 1)]
+              (set cs.last-x t.clientX)
+              (set cs.last-y t.clientY))))
+          (set bar.ontouchmove (fn [e]
+            (e.preventDefault)
+            (let [t (. e.touches 1)]
+              (set ct.style.left
+                (.. (- ct.offsetLeft 
+                       (- cs.last-x t.clientX))
+                    :px))
+              (set ct.style.top
+                (.. (- ct.offsetTop 
+                       (- cs.last-y t.clientY))
+                    :px))
+              (set cs.last-x t.clientX)
+              (set cs.last-y t.clientY))))
+          (ct.appendChild bar))
+      
+        (fn cs.add-hist [ct]
+          (local hist cs.hist-el)
+          (set-style hist 
+            [:background-color :#282828
+             :flex-grow 1
+             :overflow-y :auto
+             :padding :3px
+             :font-family :monospace])
+          (ct.appendChild hist))
+
+        (fn cs.add-input [ct]
+          (local ipt cs.ta)
+          (set-style ipt
+            [:flex-shrink 0
+             :resize :none
+             :min-height :1em
+             :color :white
+             :background-color :#333
+             :min-height :60px
+             :box-sizing :border-box
+             :padding :6px
+             :font-family :monospace
+             :border :none
+             :border-top-width :1px
+             :border-top-color :#444
+             :border-top-style :solid
+             :outline :none
+             :border-bottom-left-radius :10px
+             :border-bottom-right-radius :10px])
+          
+          
+          (fn ipt.onkeyup [e]
+            (when (= e.key :Enter)
+              (when e.ctrlKey
+                (table.insert 
+                  cs.str-queue ipt.value)
+                (set ipt.value ""))))
+          (ct.appendChild ipt))
+
+        (fn cs.add-item [str]
+          (DOM.log str)
+          (local h cs.hist-el)
+          (local div (cr :div))
+          (set div.textContent str)
+          (set-style div
+            [:font-family :monospace
+             :box-sizing  :border-box
+             :white-space :pre
+             :overflow-x  :auto
+             :margin      :3px
+             :padding     :6px])
+          (h.appendChild div))
+        
+        (fn cs.get-input [res]
+          (if res
+            (let [req DOM.window.requestIdleCallback]
+              (if (next cs.str-queue)
+                  (res (table.remove cs.str-queue 1))
+                  (req (fn [] (cs.get-input res)))))
+            (prom (fn [res] (cs.get-input res)))))
+
+        
+        (local ct cs.container)
+        (make-float ct)
+        (make-rounded ct)
+        (set-style ct cs.dimensions)
+        (cs.add-bar ct)
+        (cs.add-hist ct)
+        (cs.add-input ct)
+
+        
+        (body.appendChild cs.container))
+
+      (set _G.console {})
+      (init-console _G.console)
+      (set _G.prsv
+        (let [loc _G.DOM.window.localStorage]
+          (_G.fennel.eval (or loc.devimg "{}"))))
+      (set _G.save-prsv (fn []
+        (let [loc _G.DOM.window.localStorage
+              str (_G.fennel.view _G.prsv)]
+          (set loc.devimg str))))
+      (set _G.download-prsv (fn [name]
+        (let [loc _G.DOM.window.localStorage]
+          (_G.DOM.dlstr loc.devimg 
+                        (or name :devimg)))))
+      (local abc 100)
+      (_G.DOM.alert 
+        (_G.fennel.repl 
+          {:readChunk (fn []
+             (local rd (_G.console.get-input))
+             (local txt (rd:await))
+             (_G.console.add-item (.. "> " txt))
+             (.. txt " "))
+           :onValues (fn [t] (_G.console.add-item
+             (table.concat t "\t")))}))`
+
+    ///////////////////////////////////////////
+    //////////////// Setup Lua ////////////////
+    ///////////////////////////////////////////
     
     const factory = new LuaFactory();
     if (!factory) { console.log("can't create LuaFactory"); return; }
-    await factory.mountFile("fennel.lua", fnl);
-    await factory.mountFile("init.fnl", init);
     const lua = await factory.createEngine();
-    await lua.doString(
-        "require('fennel').install().dofile('init.fnl')"
+    await factory.mountFile("fennel.lua", fnl);
+    
+    const uploadString = ()=>{
+      const input = document.createElement("input");
+      input.setAttribute("type","file");
+      input.click();
+      return new Promise((res,rej) => {
+      	input.onchange = e => {
+      	  var fr = new FileReader();
+          fr.onload = file => res(file.target.result);
+          fr.readAsText(e.target.files[0]);
+      	};
+      });
+    };
+    
+    const downloadString = (str,name) => {
+        const a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        const blob = new Blob(
+            [str],
+            {type: "octet/stream"}
+        );
+        const url = window.URL.createObjectURL(blob);
+        a.href = url;
+        a.download = name;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+    lua.global.set("DOM",{document,window,
+      dlstr: downloadString,
+      upstr: uploadString,
+      alert: a=>window.alert(a),
+      log: console.log,
+    });
+    lua.global.set("EVAL",(s)=>eval(s));
+    lua.global.set("boot",localStorage.boot||boot);
+    
+    lua.doString(`
+      return require('fennel').eval(boot)`
     );
-    const GUAR = lua.global.get("GUAR");
-    lua.global.set("alert", window.alert);
-    lua.global.set("out", document.getElementById("out"));
-    const glsl = SwissGL(cnv);
-    console.log(glsl);
+    
 
+    ///////////////////////////////////////////
+    ///////////// Pretty Pictures /////////////
+    ///////////////////////////////////////////
+
+    
+    const glsl = SwissGL(cnv);
+    
     let evts = [];
     const dpr = self.devicePixelRatio;
     const getx = touch => 2*(touch.clientX*dpr-(cnv.width/2))/cnv.width;
@@ -120,34 +317,23 @@ async () => {
     const changed = name => e => [...e.changedTouches].forEach(entry(name));
     window.ontouchcancel = changed("touchcancel");
     window.ontouchend    = changed("touchended");
-    window.ontouchmove   = changed("touchmoved");
-    // window.ontouchstart  = changed("touchstarted");
-    window.ontouchstart = (e) => {
-        // console.log("chuck");
-        changed("touchstarted")(e);
-        if (2==touched) {
-            document.documentElement.requestFullscreen();
-            // window.location.reload();
-        }
-        touched = touched+1;
-        // document.getElementById("out").innerHTML = touched+"";
+    window.ontouchmove   = e=> {
+      e.preventDefault(); changed("touchmoved")(e);
     };
     
-    const once = lua.global.get("once");
-    document.getElementById("out").innerText = once();
-
-    glsl.loop(({time})=>{
+    glsl.loop(async ({time})=>{
         glsl.adjustCanvas();
         const rat = cnv.width > cnv.height ?
             cnv.width/cnv.height:
             cnv.height/cnv.width;
-        const cmds = [];
+        const cmds = [1,0.1,0.3,1];
         evts.push(["resizeaspect",rat,cnv.width>cnv.height])
-        GUAR(cmds,evts);
-        evts = []
+        //GUAR(cmds,evts);
+        evts = [];
+        const fp = lua.global.get("shader")
         const data = new Float32Array(cmds);
         const dat = glsl({},{size:[1,1],format:'rgba32f',data, tag:"dat"});
-        glsl({time, rat, dat, Aspect:'cover',FP:\`
+        glsl({time, rat, dat, Aspect:'cover',FP:fp||`
             vec2 pos = vec2(XY)*rat;
             
             #define idx(i) dat(ivec2(i,0))
@@ -158,240 +344,10 @@ async () => {
                 d = sin(d*6. + time)/6.;
                 d = abs(d);
                 d = step(.1, d);
-                FOut = vec4(d, 0, 0.5, 1.);
+                FOut = vec4(d, 0, .5, 0);
             } else {
                 FOut = vec4(0.8);
             };
-            \`});
+            `});
     });
-};
-`
-
-
-window.onload = () => {
-    const defaultfs = {
-        "host": {
-            //"fennel.lua": fnl,
-            "iframe": defaultiframesrc,
-            "iframecode": defaultiframecode,
-            "init.fnl": init
-        },
-        "user": {}
-    };
-    const ls = window.localStorage;
-    if (!ls.getItem("fs")) {
-        ls.setItem("fs",JSON.stringify(defaultfs));
-    }
-    const currentfs = JSON.parse(ls.getItem("fs"));
-
-    const dv = ()=> {
-        const d = document.createElement("div");
-        d.style.backgroundColor = "#404040";
-        return d;
-    };
-    const ap = (el,x)=>el.appendChild(x);
-    const editor = document.getElementById("editor");
-    const cmwrap = document.createElement("div");
-    cmwrap.className = "mirror";
-    ap(editor,cmwrap);
-    const cm = new EditorView({
-        extensions:
-          [vim(),oneDark,basicSetup,keymap.of([indentWithTab]),foldingOnIndent],
-        parent:cmwrap
-    });
-    let vimcm = getCM(cm);
-    Vim.exitInsertMode(vimcm);
-    Vim.handleKey(cm,"<Esc>");
-    Vim.map("`","<Esc>","insert");
-
-
-    globalThis.abc = cm;
-
-    const code = cmwrap;
-    code.style.display = "none";
-
-    const fs = dv();
-    fs.className = "code";
-    fs.style.display = "inline"
-    ap(editor,fs);
-
-    fs.innerHTML = "";
-    populateFS(fs,{"test": {
-        "hello":{}
-    },"cak":"gull"},[]);
-    fs.innerHTML = "";
-    populateFS(fs,currentfs,[]);
-
-    const file = document.getElementById("fileselect");
-    file.onchange = (e) => {
-        const [name,dir] = indexfs(currentfs,currentfile);
-        dir[name] = cm.state.doc.toString();
-        updatePanel(e.target.value);
-    }
-    let cm_states = [];
-
-    let currentfile;
-    const save = document.getElementById("save");
-    save.style.display = "none";
-    save.onclick = (e) => {
-        const [name,dir] = indexfs(currentfs,currentfile);
-        dir[name] = cm.state.doc.toString();
-        ls.setItem("fs",JSON.stringify(currentfs));
-    }
-    
-
-    function indexfs(fsys,path) {
-        const subpaths = path.split("/");
-        const name = subpaths.pop();
-        let dir = fsys;
-        for (const sub of subpaths) {
-            dir = dir[sub];
-        }
-        return [name,dir];
-    };
-
-    function updatePanel(optvalue) { 
-        if (optvalue=="main") {
-            code.style.display = "none"
-            save.style.display = "none";
-            fs.style.display = "inline";
-        } else {
-            code.style.display = "inline";
-            save.style.display = "inline";
-            fs.style.display = "none";
-            const [name,dir] = indexfs(currentfs,optvalue); 
-
-            cm.dispatch({changes: {
-                from: 0, to: cm.state.doc.length,
-                insert: dir[name]
-            }});
-            currentfile = optvalue;
-        };
-    }
-
-    function openOrCreateTab(path, filename) {
-        const pathtxt = path.reduce((acc,v)=>acc+v+"/","")+filename;
-        let exists = false;
-        for (const option of file.options) {
-            if (option.value == pathtxt) {
-                exists = pathtxt
-            }
-        }
-        if (!exists) {
-            const opt = document.createElement("option");
-            opt.value = pathtxt;
-            opt.text = filename;
-            file.add(opt);
-        }
-        for (const option of file.options) {
-            if(option.value == pathtxt) {
-                option.selected = true;
-                updatePanel(option.value);
-            } else {
-                option.selected = false;
-            }
-        }
-    }
-
-    function item(lvl,filename,ty) {
-        const b = dv();
-        b.style.padding = "5px";
-        b.style.fontFamily = "monospace";
-        b.style.fontSize = "large"
-        let htm =
-          "&nbsp;&nbsp;"
-            .repeat(lvl.length)
-            .concat(filename);
-        console.log("ent");
-        console.log(lvl);
-        console.log(filename);
-        if (ty=="dir") {
-            htm = htm.concat("&#8628;");
-        };
-        b.innerHTML = htm; 
-        return b;
-    };
-
-    function populateFS(filesys,obj,lvl) {
-        for (const key in obj) {
-            if (Object.hasOwnProperty.call(obj, key)) {
-                const elm = obj[key];
-                if(typeof(obj[key])=="string") {
-                    console.log("test")
-                    const file = item(lvl,key,"file");
-                    file.onclick = e=>{
-                        openOrCreateTab(lvl,key);
-                    }
-                    ap(filesys,file);
-                } else {
-                    ap(filesys,item(lvl,key,"dir"));
-                    populateFS(
-                        filesys,elm,
-                        lvl.concat(key));
-                }
-            }
-        }
-    }
-    
-    const down = document.getElementById("download");
-    down.onclick = (e) => {
-        const a = document.createElement("a");
-        document.body.appendChild(a);
-        a.style = "display: none";
-        const blob = new Blob(
-            [JSON.stringify(currentfs)],
-            {type: "octet/stream"}
-        );
-        const url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = "halcyon_save.txt";
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }
-    const filestore = document.createElement("input");
-    filestore.style.display = "none";
-    filestore.type = "file";
-    filestore.oninput = (e) => {
-        console.log(e.target.files[0])
-        const fr = new FileReader();
-        fr.onload = (e)=>{
-            const obj = JSON.parse(e.target.result);
-            for (const key in obj) {
-                if (Object.hasOwnProperty.call(obj, key)) {
-                    currentfs[key] = obj[key];
-                }
-            }
-            fs.innerHTML = "";
-            populateFS(fs,currentfs,[]);
-        }
-        fr.readAsText(e.target.files[0]);
-    }
-    const upload = document.createElement("button");
-    upload.className = "btn";
-    upload.innerText = "^";
-    upload.onclick = e =>{
-        filestore.click();
-    }
-    const bar = document.getElementsByClassName("bar")[0];
-    bar.appendChild(upload);
-    
-    const fennel = fnl;
-    const LuaFact = LuaFactory;
-    const rel = document.getElementById("reload");
-    let iframe;
-    rel.onclick = e=>{
-        const container = document.body;
-        if (iframe) {
-            container.removeChild(iframe);
-            iframe.src = "about:blank";
-        }
-        const [fnl,LuaFactory] = [fennel,LuaFact];
-        iframe = document.createElement("iframe");
-        iframe.srcdoc = currentfs["host"]["iframe"];
-        container.appendChild(iframe);
-        const iframecode = currentfs["host"]["iframecode"]
-        const fun = eval(iframecode);
-        iframe.contentWindow.onload = fun;
-    }
-    rel.click();
 };
