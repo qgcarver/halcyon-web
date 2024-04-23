@@ -50,7 +50,7 @@ const foldingOnIndent = foldService.of((state, from, to) => {
     return { from: foldStart, to: foldEnd }
 })
 
-window.onload = () => {
+window.onload = async () => {
     const cnv = document.createElement("canvas");
     if (!cnv) { console.log("couldn't get canvas"); return; }
     cnv.style.width = "100vw";
