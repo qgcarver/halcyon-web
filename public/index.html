@@ -26,13 +26,6 @@
 			min-width: 100%;
 			display: flex;
 		}
-		iframe {
-			flex-grow: 1;
-		}
-		.editor {
-			padding: 5px;
-			width: 40%;
-		}
 		.cm-editor {
 			min-height: 90%;
 			max-height: 90%;
@@ -40,28 +33,12 @@
 		.cm-scroller {
 			overflow: auto;
 		}
-		.btn {
-			font-size: x-large;
-			background-color: #333;
-			margin: 4px;
-			color:#fff;
-		}
 	</style>
 	<script src="//cdn.jsdelivr.net/npm/eruda"></script>
 	<script>eruda.init();</script>
 	<script src='bundle.js'></script>
 </head>
 <body>
-	<div id="editor" class="editor">
-		<div class="bar">
-			<button onclick="document.documentElement.requestFullscreen();" class="btn">&nbsp;&#x26f6;&nbsp;</button> 
-			<select class="btn" id="fileselect">
-				<option value="main">File System</option>
-			</select>
-			<button id="save" class="btn">save</button>
-			<button id="reload" class="btn">reload</button>
-			<button id="download" class="btn">&nbsp;&#8595;&nbsp;</button>
-		</div>
-	</div>
+	<div>work?</div>
 </body>
 </html>
