@@ -87,29 +87,30 @@ window.onload = async () => {
 
       (local prom (EVAL "(f)=>new Promise(f)"))
 
-      (fn set-style [el opt]
-        (for [i 1 (- (length opt) 1) 2]
-          (tset el.style (. opt i) (. opt (+ i 1)))))
-      
-      (local float-style
-        [:position :absolute
-         :flex-direction :column
-         :display :flex
-         :top :350px
-         :left :150px
-         :width :100px
-         :height :100px])
-         
-      (fn make-float [el] (set-style el float-style))
-      (fn make-rounded [el px] 
-        (set el.style.border-radius (or px :10px)))
-
-             
-      (fn color [el clr]
-        (let [st el.style]
-          (set st.background-color clr)))
-         
       (fn init-console [cs]
+        (set cs.styles [])
+        (fn cs.styles.set [el opt]
+          (for [i 1 (- (length opt) 1) 2]
+            (tset el.style (. opt i) (. opt (+ i 1)))))
+      
+        (set cs.styles.float
+          [:position :absolute
+           :flex-direction :column
+           :display :flex
+           :top :350px
+           :left :150px
+           :width :100px
+           :height :100px])
+           
+        (fn make-float [el] (cs.styles.set el cs.styles.float))
+        (fn make-rounded [el px] 
+          (set el.style.border-radius (or px :10px)))
+  
+               
+        (fn color [el clr]
+          (let [st el.style]
+            (set st.background-color clr)))
+         
         (set cs.history [])
         (set cs.container (cr :div))
         (set cs.hist-el (cr :div))
@@ -119,11 +120,8 @@ window.onload = async () => {
         (set cs.dimensions
           [:height :250px :width :450px])
         
-        (fn cs.add-bar [ct]
-          (local bar (cr :div))
-          (set bar.textContent "Console")
-          (set-style bar 
-            [:background-color :#1a1a1a
+        (set cs.styles.bar-style
+          [:background-color :#1a1a1a
              :font-family :monospace
              :min-height :25px
              :flex-shrink 0
@@ -135,6 +133,10 @@ window.onload = async () => {
              :border-bottom-width :0px
              :border-bottom-color :#444
              :border-bottom-style :solid])
+        (fn cs.add-bar [ct]
+          (local bar (cr :div))
+          (set bar.textContent "Console")
+          (cs.styles.set bar cs.styles.bar-style)
           (set bar.ontouchstart (fn [e]
             (let [t (. e.touches 1)]
               (set cs.last-x t.clientX)
@@ -153,21 +155,20 @@ window.onload = async () => {
               (set cs.last-x t.clientX)
               (set cs.last-y t.clientY))))
           (ct.appendChild bar))
-      
-        (fn cs.add-hist [ct]
-          (local hist cs.hist-el)
-          (set-style hist 
-            [:background-color :#282828
+        
+        (set cs.styles.hist-style
+          [:background-color :#282828
              :flex-grow 1
              :overflow-y :auto
              :padding :3px
              :font-family :monospace])
+        (fn cs.add-hist [ct]
+          (local hist cs.hist-el)
+          (cs.styles.set hist cs.styles.hist-style)
           (ct.appendChild hist))
-
-        (fn cs.add-input [ct]
-          (local ipt cs.ta)
-          (set-style ipt
-            [:flex-shrink 0
+        
+        (set cs.styles.ipt-style
+          [:flex-shrink 0
              :resize :none
              :min-height :1em
              :color :white
@@ -183,6 +184,9 @@ window.onload = async () => {
              :outline :none
              :border-bottom-left-radius :10px
              :border-bottom-right-radius :10px])
+        (fn cs.add-input [ct]
+          (local ipt cs.ta)
+          (cs.styles.set ipt cs.styles.ipt-style)
           
           
           (fn ipt.onkeyup [e]
@@ -192,20 +196,26 @@ window.onload = async () => {
                   cs.str-queue ipt.value)
                 (set ipt.value ""))))
           (ct.appendChild ipt))
-
-        (fn cs.add-item [str]
-          (DOM.log str)
-          (local h cs.hist-el)
-          (local div (cr :div))
-          (set div.textContent str)
-          (set-style div
-            [:font-family :monospace
+        
+        (set cs.styles.item-style 
+          [:font-family :monospace
              :box-sizing  :border-box
              :white-space :pre
              :overflow-x  :auto
              :margin      :3px
              :padding     :6px])
+        (fn cs.add-item [str]
+          (DOM.log str)
+          (local h cs.hist-el)
+          (local div (cr :div))
+          (set div.textContent str)
+          (cs.styles.set div cs.styles.item-style)
           (h.appendChild div))
+        
+        (fn cs.append-to-history [txt]
+          (when cs.attached-session
+            (table.insert cs.attached-session txt))
+          (table.insert cs.history txt))
         
         (fn cs.get-input [res]
           (if res
@@ -219,11 +229,10 @@ window.onload = async () => {
         (local ct cs.container)
         (make-float ct)
         (make-rounded ct)
-        (set-style ct cs.dimensions)
+        (cs.styles.set ct cs.dimensions)
         (cs.add-bar ct)
         (cs.add-hist ct)
         (cs.add-input ct)
-
         
         (body.appendChild cs.container))
 
@@ -247,9 +256,10 @@ window.onload = async () => {
              (local rd (_G.console.get-input))
              (local txt (rd:await))
              (_G.console.add-item (.. "> " txt))
+             (_G.console.append-to-history txt)
              (.. txt " "))
            :onValues (fn [t] (_G.console.add-item
-             (table.concat t "\t")))}))`
+             (table.concat t "	")))}))`;
 
     ///////////////////////////////////////////
     //////////////// Setup Lua ////////////////
