@@ -342,22 +342,16 @@ window.onload = async () => {
         evts = [];
         const fp = lua.global.get("shader")
         const data = new Float32Array(cmds);
-        const dat = glsl({},{size:[1,1],format:'rgba32f',data, tag:"dat"});
-        glsl({time, rat, dat, Aspect:'cover',FP:fp||`
-            vec2 pos = vec2(XY)*rat;
-            
-            #define idx(i) dat(ivec2(i,0))
-            float cmd = idx(0).x;
-            if(cmd==1.) {
-                vec2 foo = idx(0).yz + pos;
-                float d = length(foo);
-                d = sin(d*6. + time)/6.;
-                d = abs(d);
-                d = step(.1, d);
-                FOut = vec4(d, 0, .5, 0);
-            } else {
-                FOut = vec4(0.8);
-            };
-            `});
+        //const dat = glsl({},{size:[1,1],format:'rgba32f',data, tag:"dat"});
+        const t = time;
+        glsl({t, // pass uniform 't' to GLSL
+            Mesh:[10, 10],  // draw a 10x10 tessellated plane mesh
+            // Vertex shader expression returns vec4 vertex position in
+            // WebGL clip space. 'XY' and 'UV' are vec2 input vertex 
+            // coordinates in [-1,1] and [0,1] ranges.
+            VP:`XY*0.8+sin(t+XY.yx*2.0)*0.2,0,1`,
+            // Fragment shader returns 'RGBA'
+            FP:`UV,0.5,1`
+        });
     });
 };
