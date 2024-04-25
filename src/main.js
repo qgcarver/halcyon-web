@@ -266,7 +266,7 @@ window.onload = async () => {
                        "(set console.attached-session nil)"]})
       (set _G.prsv
         (let [loc _G.DOM.window.localStorage]
-          (or (_G.fennel.eval loc.devimg ) default-prsv)))
+          (if loc.devimg (_G.fennel.eval loc.devimg) default-prsv)))
       (set _G.save-prsv (fn []
         (let [loc _G.DOM.window.localStorage
               str (_G.fennel.view _G.prsv)]
