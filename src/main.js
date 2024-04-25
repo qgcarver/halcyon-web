@@ -217,10 +217,7 @@ window.onload = async () => {
           (when cs.attached-session
             (table.insert cs.attached-session txt))
           (table.insert cs.history txt))
-
-        (fn cs.replay [seq]
-          (icollect [_ v (ipairs seq) &into cs.str-queue] v)) 
-
+        
         (fn cs.get-input [res]
           (if res
             (let [req DOM.window.requestIdleCallback]
@@ -242,9 +239,34 @@ window.onload = async () => {
 
       (set _G.console {})
       (init-console _G.console)
+      (local default-prsv 
+        {:hi "there"
+         :listing {:DOM {:alert true
+                         :dlstr true
+                         :document true
+                         :log true
+                         :upstr true
+                         :window true}
+                   :EVAL true
+                   :boot true
+                   :download-prsv true
+                   :prsv true
+                   :save-prsv true
+                   :shader false}
+         :make-editor ["(local cr DOM.document.createElement)"
+                       "cr"
+                       "(local ap DOM.document.body.appendChild)"
+                       "ap"
+                       "(local ta (cr :textarea))"
+                       "(set ta.style.position :absolute)"
+                       "(ap ta)"
+                       "(set ta.style.left :600px)"
+                       "(set ta.style.top :100px)"
+                       "(console.styles.set ta [:color :white :outline :none :background-color :#282828 :padding :3px])"
+                       "(set console.attached-session nil)"]})
       (set _G.prsv
         (let [loc _G.DOM.window.localStorage]
-          (_G.fennel.eval (or loc.devimg "{}"))))
+          (or (_G.fennel.eval loc.devimg ) default-prsv)))
       (set _G.save-prsv (fn []
         (let [loc _G.DOM.window.localStorage
               str (_G.fennel.view _G.prsv)]
