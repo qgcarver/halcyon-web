@@ -78,6 +78,7 @@ window.onload = async () => {
     ///////////////////////////////////////////
     
     const boot = `
+      
       (set _G.fennel (require :fennel))
         
       (local doc _G.DOM.document)
@@ -216,7 +217,10 @@ window.onload = async () => {
           (when cs.attached-session
             (table.insert cs.attached-session txt))
           (table.insert cs.history txt))
-        
+
+        (fn cs.replay [seq]
+          (icollect [_ v (ipairs seq) &into cs.str-queue] v)) 
+
         (fn cs.get-input [res]
           (if res
             (let [req DOM.window.requestIdleCallback]
