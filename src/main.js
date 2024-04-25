@@ -170,21 +170,22 @@ window.onload = async () => {
         
         (set cs.styles.ipt-style
           [:flex-shrink 0
-             :resize :none
-             :min-height :1em
-             :color :white
-             :background-color :#333
-             :min-height :60px
-             :box-sizing :border-box
-             :padding :6px
-             :font-family :monospace
-             :border :none
-             :border-top-width :1px
-             :border-top-color :#444
-             :border-top-style :solid
-             :outline :none
-             :border-bottom-left-radius :10px
-             :border-bottom-right-radius :10px])
+           :margin :0px
+           :resize :none
+           :min-height :1em
+           :color :white
+           :background-color :#333
+           :min-height :60px
+           :box-sizing :border-box
+           :padding :6px
+           :font-family :monospace
+           :border :none
+           :border-top-width :1px
+           :border-top-color :#444
+           :border-top-style :solid
+           :outline :none
+           :border-bottom-left-radius :10px
+           :border-bottom-right-radius :10px])
         (fn cs.add-input [ct]
           (local ipt cs.ta)
           (cs.styles.set ipt cs.styles.ipt-style)
