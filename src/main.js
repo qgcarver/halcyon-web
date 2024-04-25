@@ -351,7 +351,7 @@ window.onload = async () => {
             // coordinates in [-1,1] and [0,1] ranges.
             VP:`XY*0.8+sin(t+XY.yx*2.0)*0.2,0,1`,
             // Fragment shader returns 'RGBA'
-            FP:`UV,0.5,1`
+            FP:fp||`UV,0.5,1`
         });
     });
 };
