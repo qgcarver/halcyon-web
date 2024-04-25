@@ -212,7 +212,8 @@ window.onload = async () => {
           (local div (cr :div))
           (set div.textContent str)
           (cs.styles.set div cs.styles.item-style)
-          (h.appendChild div))
+          (h.appendChild div)
+          (set h.scrollTop h.scrollHeight))
         
         (fn cs.append-to-history [txt]
           (when cs.attached-session
