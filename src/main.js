@@ -299,7 +299,7 @@ window.onload = async () => {
     
     const factory = new LuaFactory();
     if (!factory) { console.log("can't create LuaFactory"); return; }
-    const lua = await factory.createEngine();
+    const lua = await factory.createEngine({injectObjects: true});
     await factory.mountFile("fennel.lua", fnl);
     
     const uploadString = ()=>{
