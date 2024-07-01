@@ -1,0 +1,14 @@
+{
+  "name": "PWA Minimus",
+  "short_name": "PWA mini",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#ffffff",
+  "background_color":"#ffffff",
+  "icons": [
+    {
+      "src": "mf-logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }]
+}
