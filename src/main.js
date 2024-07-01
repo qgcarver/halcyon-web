@@ -16,6 +16,9 @@ window.onload = async () => {
     /////////////// Fennel Boot ///////////////
     ///////////////////////////////////////////
     
+    const fcpbait = document.createElement("div");
+    fcpbait.innerText = "test";
+    document.body.appendChild(fcpbait);
     const boot = `
       
       (set _G.fennel (require :fennel))
