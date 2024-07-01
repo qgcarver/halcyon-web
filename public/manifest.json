@@ -7,7 +7,7 @@
   "background_color":"#ffffff",
   "icons": [
     {
-      "src": "mf-logo-512.png",
+      "src": "red-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }]
