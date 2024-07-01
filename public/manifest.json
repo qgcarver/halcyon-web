@@ -1,6 +1,6 @@
 {
-  "name": "PWA Minimus",
-  "short_name": "PWA mini",
+  "name": "Halcyon-Web",
+  "short_name": "Halcyon",
   "start_url": "/halcyon-web/",
   "display": "standalone",
   "theme_color": "#ffffff",
