@@ -1,11 +1,5 @@
 import { LuaFactory } from "./wasmoon.js";
 import './swissgl.js'; const SwissGL = _SwissGL;
-import {EditorView, basicSetup} from "codemirror";
-import {oneDark} from "@codemirror/theme-one-dark";
-import {keymap} from "@codemirror/view";
-import {indentWithTab} from "@codemirror/commands";
-import { foldService } from '@codemirror/language';
-import {vim, Vim, getCM, CodeMirror} from "@replit/codemirror-vim"
 import fnl from "./fennel.lua";
 import init from "./init.fnl";
 // unfortunately necessary monkeypatch
@@ -56,23 +50,6 @@ window.onload = async () => {
     cnv.style.width = "100vw";
     cnv.style.height = "100vh";
     document.body.appendChild(cnv);
-    const cmwrap = document.createElement("div");
-    cmwrap.className = "mirror";
-    //ap(editor,cmwrap);
-    const cm = new EditorView({
-        extensions:
-          [vim(),oneDark,basicSetup,keymap.of([indentWithTab]),foldingOnIndent],
-        parent:cmwrap
-    });
-    let vimcm = getCM(cm);
-    Vim.exitInsertMode(vimcm);
-    Vim.handleKey(cm,"<Esc>");
-    Vim.map("`","<Esc>","insert");
-    globalThis.abc = cm;
-    const code = cmwrap;
-    //code.style.display = "none";
-    //dir[name] = cm.state.doc.toString();
-
     ///////////////////////////////////////////
     /////////////// Fennel Boot ///////////////
     ///////////////////////////////////////////
