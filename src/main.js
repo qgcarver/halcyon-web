@@ -1,6 +1,7 @@
 import { LuaFactory } from "./wasmoon.js";
 import './swissgl.js'; const SwissGL = _SwissGL;
 import fnl from "./fennel.lua";
+import fnlfmt from "./fnlfmt.fnl";
 import init from "./init.fnl";
 // unfortunately necessary monkeypatch
 // wasmoon uses setImmediate internally for some reason.
@@ -240,6 +241,7 @@ window.onload = async () => {
     if (!factory) { console.log("can't create LuaFactory"); return; }
     const lua = await factory.createEngine({injectObjects: true});
     await factory.mountFile("fennel.lua", fnl);
+    await factory.mountFile("fnlfmt.fnl", fnlfmt);
     
     const uploadString = ()=>{
       const input = document.createElement("input");
