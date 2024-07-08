@@ -280,7 +280,7 @@ window.onload = async () => {
     lua.global.set("boot",localStorage.boot||boot);
     
     lua.doString(`
-      return require('fennel').eval(boot)`
+      return require('fennel').install().eval(boot)`
     );
     
 
