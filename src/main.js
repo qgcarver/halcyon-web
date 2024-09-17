@@ -19,7 +19,8 @@ window.onload = async () => {
     
     const boot = `
       
-      (set _G.fennel (require :fennel))
+      (local fennel (require :fennel))
+      (set _G.fennel fennel)
       
 
   
