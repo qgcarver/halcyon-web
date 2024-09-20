@@ -1,5 +1,9 @@
 # https://qgcarver.github.io/MoonBounce
 
+## This Readme is Out of date
+This project is now an inspector-based IDE project, and the repl approach described
+below is going to be absorbed into that.
+
 ## What is this?
 A repl for making stuff in the browser with Fennel.
 
