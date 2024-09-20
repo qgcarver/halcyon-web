@@ -910,6 +910,7 @@ window.onload = async () => {
       upstr: uploadString,
       alert: a=>window.alert(a),
       log: console.log,
+      wasmoon: lua,
     });
     lua.global.set("EVAL",(s)=>eval(s));
     lua.global.set("boot",localStorage.boot||boot);
