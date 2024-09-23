@@ -216,10 +216,10 @@ window.onload = async () => {
                         
                         (each [i v (ipairs plug.in-queue)]
                             (case v :open-plugins
-                                    (do (DOM.log (fennel.view s.out-queue))
+                                    (do (comment DOM.log (fennel.view s.out-queue))
                                         (table.insert s.out-queue :open-plugins))
                                     :save-prsv
-                                    (do (DOM.log (fennel.view s.out-queue))
+                                    (do (comment DOM.log (fennel.view s.out-queue))
                                         (table.insert s.out-queue :save-prsv))
                                     :update-ui
                                     (set plug.update-ui true)
@@ -363,10 +363,10 @@ window.onload = async () => {
                               (set db.changed? false))
                           (each [i v (ipairs plug.in-queue)]
                               (case v :open-self
-                                      (do (DOM.log (fennel.view s.out-queue))
+                                      (do (comment DOM.log (fennel.view s.out-queue))
                                           (table.insert s.out-queue :open-self))
                                       :save-prsv
-                                      (do (DOM.log (fennel.view s.out-queue))
+                                      (do (comment DOM.log (fennel.view s.out-queue))
                                           (table.insert s.out-queue :save-prsv))
                                       :test-thing (plug.active-tags:add :whatever)
                                       [:select-tag tag]
@@ -634,7 +634,7 @@ window.onload = async () => {
             (set s.body-el (E :div [:hylc :body] (make-panels s.menu)))
             (s.container.appendChild header)
             (s.container.appendChild s.body-el)
-            (DOM.log s.container))
+            (comment DOM.log s.container))
         
         (when (not _G.__style-loaded)  
             (let [lst (DOM.document.getElementsByTagName :script)]
