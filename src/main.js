@@ -913,6 +913,7 @@ window.onload = async () => {
       wasmoon: lua,
     });
     lua.global.set("EVAL",(s)=>eval(s));
+    lua.global.set("twgl",twgl)
     lua.global.set("boot",localStorage.boot||boot);
     
     lua.doString(`
