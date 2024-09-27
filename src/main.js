@@ -911,7 +911,13 @@ window.onload = async () => {
       alert: a=>window.alert(a),
       log: console.log,
       wasmoon: lua,
-      new: ((T,...a) => new T(...a)),
+      new: (T=>{
+        let Constructor = T;
+        return (...a) => {
+          let constructed = new Constructor(...a);
+          return constructed;
+        };
+      }),
     });
     lua.global.set("EVAL",(s)=>eval(s));
     lua.global.set("twgl",twgl)
