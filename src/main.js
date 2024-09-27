@@ -668,8 +668,8 @@ window.onload = async () => {
                     "top: " box.y "px;" "height: " box.h "px;"
                     "max-height: " box.h "px;"
                     "background-color: " color ";"
-                    "border-bottom-left-radius: 10px;"
-                    "border-bottom-right-radius: 10px;")))
+                    "border-bottom-left-radius: 20px;"
+                    "border-bottom-right-radius: 20px;")))
         ;; a lot of DOM/class updates happening here, seems to be slowing things down
         (update-menu)
         (update-box s.container "#282828" s)
