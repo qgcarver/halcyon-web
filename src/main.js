@@ -911,6 +911,7 @@ window.onload = async () => {
       alert: a=>window.alert(a),
       log: console.log,
       wasmoon: lua,
+      new: ((T,...a) => new T(...a)),
     });
     lua.global.set("EVAL",(s)=>eval(s));
     lua.global.set("twgl",twgl)
