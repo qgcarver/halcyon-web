@@ -911,8 +911,8 @@ window.onload = async () => {
       alert: a=>window.alert(a),
       log: console.log,
       wasmoon: lua,
-      new: (T=>{
-        let Constructor = T;
+      new: (Tstr=>{
+        let Constructor = window[Tstr];
         return (...a) => {
           let constructed = new Constructor(...a);
           return constructed;
