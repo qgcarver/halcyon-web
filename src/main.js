@@ -385,9 +385,10 @@ window.onload = async () => {
                                           (let [f (load code key :t)]
                                               (local (ok err) (pcall f s))
                                               (when (not ok)
-                                                  (table.insert plug.in-queue [:edit-snip key])
-                                                  (plug.out.appendChild 
-                                                      (s.E :div [:editor :entry] err)))))
+                                                  (local dv (s.E :div [:editor :entry] err))
+                                                  (fn dv.onpointerup [e] 
+                                                      (table.insert plug.in-queue [:edit-snip key]))
+                                                  (plug.out.appendChild dv))))
                                       [:del-snip i]
                                       (db:remove plug.selected-tag i)
                                       ))
