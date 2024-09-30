@@ -382,9 +382,10 @@ window.onload = async () => {
                                           (db:update))
                                       [:run-snip key]
                                       (do (local code (. db.snips key))
-                                          (let [f (load code nil :t)]
+                                          (let [f (load code key :t)]
                                               (local (ok err) (pcall f s))
                                               (when (not ok)
+                                                  (table.insert plug.in-queue [:edit-snip key])
                                                   (plug.out.appendChild 
                                                       (s.E :div [:editor :entry] err)))))
                                       [:del-snip i]
