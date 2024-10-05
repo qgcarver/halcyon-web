@@ -3,7 +3,7 @@ import './swissgl.js'; const SwissGL = _SwissGL;
 import fnl from "./fennel.lua";
 import fnlfmt from "./fnlfmt.fnl";
 import init from "./init.fnl";
-import MoonBounceDatabase from "./oct4-MoonBounce.txt";
+import MoonBounceDatabase from "./MoonBounceDatabase.txt";
 // unfortunately necessary monkeypatch
 // wasmoon uses setImmediate internally for some reason.
 globalThis.setImmediate = globalThis.setTimeout;
