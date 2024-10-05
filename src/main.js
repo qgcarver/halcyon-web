@@ -3,6 +3,7 @@ import './swissgl.js'; const SwissGL = _SwissGL;
 import fnl from "./fennel.lua";
 import fnlfmt from "./fnlfmt.fnl";
 import init from "./init.fnl";
+import MoonBounceDatabase from "./oct4-MoonBounce.txt";
 // unfortunately necessary monkeypatch
 // wasmoon uses setImmediate internally for some reason.
 globalThis.setImmediate = globalThis.setTimeout;
@@ -924,6 +925,7 @@ window.onload = async () => {
     lua.global.set("EVAL",(s)=>eval(s));
     lua.global.set("twgl",twgl)
     lua.global.set("boot",localStorage.boot||boot);
+    localStorage["prsv-img"] = localStorage["prsv-img"]||MoonBounceDatabase;
     
     lua.doString(`
       return require('fennel').install().eval(boot)`
