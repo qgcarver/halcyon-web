@@ -204,13 +204,17 @@ window.onload = async () => {
                                   (set lastkeys.next.val next-tbl)
                                   (local next-key-list plug.next-key-list)
                                   (set plug.next-key-list (s.E :div [:browser :entry]
-                                                               (string.sub (fennel.view next-tbl) 2 -2)))
+                                                               (if (= (type next-tbl) :string) 
+                                                                   (string.sub (fennel.view next-tbl) 2 -2)
+                                                                   (fennel.view next-tbl))))
                                   (next-key-list.replaceWith plug.next-key-list))
                                 (when (not= next-tbl lastkeys.next.val)
                                   (set lastkeys.next.val next-tbl)
                                   (local next-key-list plug.next-key-list)
                                   (set plug.next-key-list (s.E :div [:browser :entry] 
-                                                               (string.sub (fennel.view next-tbl) 2 -2)))
+                                                               (if (= (type next-tbl) :string) 
+                                                                   (string.sub (fennel.view next-tbl) 2 -2)
+                                                                   (fennel.view next-tbl))))
                                   (next-key-list.replaceWith plug.next-key-list))))
                         (set plug.update-ui false)
                         
