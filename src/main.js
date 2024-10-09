@@ -93,7 +93,7 @@ window.onload = async () => {
                         
                         (fn strify [x]
                             (case (type x)
-                                :string (string.sub (fennel.view x) 1 -1)
+                                :string x
                                 :number (.. (tostring x) " (number)")))
                         (set plug.make-last-entry
                             (or plug.make-last-entry
@@ -204,13 +204,13 @@ window.onload = async () => {
                                   (set lastkeys.next.val next-tbl)
                                   (local next-key-list plug.next-key-list)
                                   (set plug.next-key-list (s.E :div [:browser :entry]
-                                                               (tostring next-tbl)))
+                                                               (string.sub (fennel.view next-tbl) 2 -2)))
                                   (next-key-list.replaceWith plug.next-key-list))
                                 (when (not= next-tbl lastkeys.next.val)
                                   (set lastkeys.next.val next-tbl)
                                   (local next-key-list plug.next-key-list)
                                   (set plug.next-key-list (s.E :div [:browser :entry] 
-                                                               (tostring next-tbl)))
+                                                               (string.sub (fennel.view next-tbl) 2 -2)))
                                   (next-key-list.replaceWith plug.next-key-list))))
                         (set plug.update-ui false)
                         
