@@ -93,7 +93,7 @@ window.onload = async () => {
                         
                         (fn strify [x]
                             (case (type x)
-                                :string (string.sub (fennel.view x) 3 -3)
+                                :string (string.sub (fennel.view x) 2 -2)
                                 :number (.. (tostring x) " (number)")))
                         (set plug.make-last-entry
                             (or plug.make-last-entry
